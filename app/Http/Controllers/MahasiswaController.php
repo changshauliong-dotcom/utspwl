@@ -7,68 +7,56 @@ use Illuminate\Http\Request;
 
 class MahasiswaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        return view('IndexMahasiswa', ['mahasiswas' => Mahasiswa::all()]);
+        $mahasiswa = Mahasiswa::all();
+        return view('mahasiswa.index', compact('mahasiswa'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        return view('createMahasiswa');
+        return view('mahasiswa.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $data = Mahasiswa::create([
-            'name' => $request->name,
-            'NIM' => $request->NIM,
-            'tempat_lahir' => $request->tempat_lahir,
-            'tanggal_lahir' => $request->tanggal_lahir,
-            'jurusan' => $request->jurusan,
-            'angkatan' => $request->angkatan
+        $request->validate([
+            'nim'  => 'required|unique:mahasiswas,nim',
+            'nama' => 'required',
         ]);
 
-        return redirect()->route('mahasiswa.index');
+        Mahasiswa::create([
+            'nim'  => $request->nim,
+            'nama' => $request->nama,
+        ]);
+
+        return redirect()->route('mahasiswa.index')->with('success', 'Mahasiswa berhasil ditambahkan!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show($id)
-    {
-        
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit($id)
     {
-        
+        $mahasiswa = Mahasiswa::findOrFail($id);
+        return view('mahasiswa.edit', compact('mahasiswa'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
+    public function update(Request $request,$id)
     {
-        
+        $request->validate([
+            'nim'  => 'required|unique:mahasiswas,nim,' . $id,
+            'nama' => 'required',
+        ]);
+
+        $mahasiswa = Mahasiswa::findOrFail($id);$mahasiswa->update([
+            'nim'  => $request->nim,
+            'nama' => $request->nama,
+        ]);
+
+        return redirect()->route('mahasiswa.index')->with('success', 'Data mahasiswa berhasil diperbarui!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
-        
+        Mahasiswa::destroy($id);
+        return redirect()->route('mahasiswa.index')->with('success', 'Mahasiswa berhasil dihapus!');
     }
 }
